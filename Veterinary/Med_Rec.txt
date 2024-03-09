@@ -1,0 +1,268 @@
+package veterinary;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Vector;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+
+public class Med_Rec extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+
+	Connection conn;
+	PreparedStatement pst;
+	private JTextField record;
+	private JTextField clientid;
+	private JTextField appid;
+	private JTextField vax;
+	private JTextField deworm;
+	private JTextField mite;
+	private JLabel lblAppointmentId;
+	private JLabel lblVaccination;
+	private JLabel lblDeworming;
+	private JLabel lblMiteTreatment;
+	private JButton backbtn;
+	private void tableUpdate() {
+		int c;
+		try {
+			// Class.forName("com.mysql.cj.jdbc.Driver");
+			// System.out.println("Connecting to a selected database...");
+
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+			pst = conn.prepareStatement("select Record_ID,Client_ID,App_ID,Vaccination,Deworming"
+					+ ",Mite_Treatment from med_rec");
+			ResultSet rs = pst.executeQuery();
+			ResultSetMetaData rss = rs.getMetaData();
+			c = rss.getColumnCount();
+
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			dtm.setRowCount(0);
+
+			while (rs.next()) {
+				Vector v2 = new Vector();
+
+				for (int a = 1; a <= c; a++) {
+					v2.add(rs.getString("Record_ID"));
+					v2.add(rs.getString("Client_ID"));
+					v2.add(rs.getString("App_ID"));
+					v2.add(rs.getString("Vaccination"));
+					v2.add(rs.getString("Deworming"));
+					v2.add(rs.getString("Mite_Treatment"));
+				}
+
+				dtm.addRow(v2);
+			}
+		}
+
+		catch (Exception ev) {
+			{
+				System.out.println(ev);
+			}
+			;
+		}}
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Med_Rec frame = new Med_Rec();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Med_Rec() {
+		setTitle("Medical Record");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 614, 669);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		
+		//This is the Table
+				JScrollPane scrollPane1 = new JScrollPane();
+				scrollPane1.setToolTipText("");
+				scrollPane1.addPropertyChangeListener(new PropertyChangeListener() {
+					public void propertyChange(PropertyChangeEvent evt) {
+					}
+				});
+				contentPane.setLayout(null);
+
+				scrollPane1.setBounds(20, 363, 561, 224);
+				contentPane.add(scrollPane1);
+				
+				record = new JTextField();
+				record.setBounds(20, 25, 131, 33);
+				contentPane.add(record);
+				record.setColumns(10);
+				
+				clientid = new JTextField();
+				clientid.setBounds(235, 27, 128, 30);
+				contentPane.add(clientid);
+				clientid.setColumns(10);
+				
+				appid = new JTextField();
+				appid.setBounds(450, 27, 131, 30);
+				contentPane.add(appid);
+				appid.setColumns(10);
+				
+				vax = new JTextField();
+				vax.setBounds(20, 91, 559, 67);
+				contentPane.add(vax);
+				vax.setColumns(10);
+				
+				deworm = new JTextField();
+				deworm.setBounds(20, 186, 561, 67);
+				contentPane.add(deworm);
+				deworm.setColumns(10);
+				
+				mite = new JTextField();
+				mite.setBounds(20, 286, 561, 67);
+				contentPane.add(mite);
+				mite.setColumns(10);
+
+				table = new JTable();
+				table.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+						int selectedIndex = table.getSelectedRow();
+						
+						record.setText(dtm.getValueAt(selectedIndex, 0).toString());
+						clientid.setText(dtm.getValueAt(selectedIndex, 1).toString());
+						appid.setText(dtm.getValueAt(selectedIndex, 2).toString());
+						vax.setText(dtm.getValueAt(selectedIndex, 3).toString());
+						deworm.setText(dtm.getValueAt(selectedIndex, 4).toString());
+						mite.setText(dtm.getValueAt(selectedIndex, 5).toString());
+					}
+					});
+
+				table.setModel(new DefaultTableModel(new Object[][] {},
+						new String[] { "Record ID", "Client ID", "Appointment ID", "Vaccination", "Deworming", "Mite Treatment"}) {
+
+					Class[] columnTypes = new Class[] { Integer.class, Integer.class, Integer.class, String.class, String.class, String.class, String.class };
+
+					public Class getColumnClass(int columnIndex) {
+						return columnTypes[columnIndex];
+					
+					}
+				});
+
+				scrollPane1.setViewportView(table);
+
+				JButton Displaybtn = new JButton("DISPLAY RECORDS");
+				Displaybtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				Displaybtn.setBounds(367, 597, 214, 23);
+				contentPane.add(Displaybtn);
+				
+				JLabel lblNewLabel = new JLabel("Record ID");
+				lblNewLabel.setToolTipText("");
+				lblNewLabel.setBounds(22, 10, 57, 13);
+				contentPane.add(lblNewLabel);
+				
+				JLabel lblClientId = new JLabel("Client ID");
+				lblClientId.setToolTipText("");
+				lblClientId.setBounds(235, 10, 57, 13);
+				contentPane.add(lblClientId);
+				
+				lblAppointmentId = new JLabel("Appointment ID");
+				lblAppointmentId.setToolTipText("");
+				lblAppointmentId.setBounds(450, 10, 96, 13);
+				contentPane.add(lblAppointmentId);
+				
+				lblVaccination = new JLabel("Vaccination");
+				lblVaccination.setToolTipText("");
+				lblVaccination.setBounds(20, 68, 96, 13);
+				contentPane.add(lblVaccination);
+				
+				lblDeworming = new JLabel("Deworming");
+				lblDeworming.setToolTipText("");
+				lblDeworming.setBounds(20, 163, 131, 13);
+				contentPane.add(lblDeworming);
+				
+				lblMiteTreatment = new JLabel("Mite Treatment");
+				lblMiteTreatment.setToolTipText("");
+				lblMiteTreatment.setBounds(20, 263, 96, 13);
+				contentPane.add(lblMiteTreatment);
+				
+				backbtn = new JButton("Back");
+				backbtn.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						MainEra me = new MainEra();
+						me.setVisible(true);
+						dispose();
+					}
+				});
+				backbtn.setBounds(167, 600, 85, 21);
+				contentPane.add(backbtn);
+				
+				JButton btnNewButton = new JButton("Back");
+				btnNewButton.setBounds(20, 485, 186, 23);
+				btnNewButton.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e) {
+						MainEra ap = new MainEra();
+						ap.setVisible(true);
+						dispose();
+					}
+					
+			});
+				
+	
+				Displaybtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+
+						tableUpdate();
+					}
+				});
+
+				//Background
+				Image bg = new ImageIcon(this.getClass().getResource("/bgtunay.png")).getImage();
+				JLabel default_bg = new JLabel("");
+				default_bg.setBounds(0, 0, 600, 632);
+				contentPane.add(default_bg);
+				default_bg.setIcon(new ImageIcon(bg));
+			}
+
+			public TableModel getTableModel() {
+				return table.getModel();
+			}
+
+			public void setTableModel(TableModel model) {
+				table.setModel(model);
+			}
+}

@@ -1,0 +1,442 @@
+package veterinary;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Vector;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.border.LineBorder;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class Inventory extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField itemno;
+	private JTextField itemname;
+	private JTextField itemquantity;
+	private JTextField itemsupplier;
+	private JTextField itemmanufac;
+	private JTextField itemcat;
+	private JTable table;
+	Connection conn;
+	PreparedStatement pst;
+	private JButton btnNewButton;
+	private JButton btnNewButton_1;
+	private JButton btnNewButton_3;
+	private JButton delete;
+	private JButton back;
+	private JButton btnNewButton_4;
+	
+	//table update
+	private void tableUpdate() {
+		int c;
+		try {
+			// Class.forName("com.mysql.cj.jdbc.Driver");
+			// System.out.println("Connecting to a selected database...");
+
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+			pst = conn.prepareStatement("select * from inventory_mgmt");
+			ResultSet rs = pst.executeQuery();
+			ResultSetMetaData rss = rs.getMetaData();
+			c = rss.getColumnCount();
+
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			dtm.setRowCount(0);
+
+			while (rs.next()) {
+				Vector v2 = new Vector();
+
+				for (int a = 1; a <= c; a++) {
+					
+					v2.add(rs.getString("Item_No"));
+					v2.add(rs.getString("Item_Name"));
+					v2.add(rs.getString("Item_Qty"));
+					v2.add(rs.getString("Item_Supplier"));
+					v2.add(rs.getString("Item_Manufacturer"));
+					v2.add(rs.getString("Item_Category"));
+				}
+
+				dtm.addRow(v2);
+			}
+		}
+
+		catch (Exception ev) {
+			{
+				System.out.println(ev);
+			}
+			;
+		}
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Inventory frame = new Inventory();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Inventory() {
+		setTitle("Inventory");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 908, 419);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBorder(new TitledBorder(
+		new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)),
+		"Inventory Details", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel.setBounds(10, 11, 278, 330);
+		contentPane.add(panel);
+		panel.setLayout(null);
+			
+		itemcat = new JTextField();
+		itemcat.setBounds(120, 34, 133, 20);
+		panel.add(itemcat);
+		itemcat.setColumns(10);	
+		
+		itemno = new JTextField();
+		itemno.setBounds(120, 65, 133, 20);
+		panel.add(itemno);
+		itemno.setColumns(10);
+		
+		itemname = new JTextField();
+		itemname.setBounds(120, 96, 133, 20);
+		panel.add(itemname);
+		itemname.setColumns(10);
+		
+		itemquantity = new JTextField();
+		itemquantity.setBounds(120, 127, 133, 20);
+		panel.add(itemquantity);
+		itemquantity.setColumns(10);
+		
+		itemsupplier = new JTextField();
+		itemsupplier.setBounds(31, 181, 222, 52);
+		panel.add(itemsupplier);
+		itemsupplier.setColumns(10);
+		
+		itemmanufac = new JTextField();
+		itemmanufac.setBounds(31, 255, 222, 52);
+		panel.add(itemmanufac);
+		itemmanufac.setColumns(10);
+		
+		
+		JLabel itno = new JLabel("Item No:");
+		itno.setBounds(31, 68, 79, 15);
+		panel.add(itno);
+		
+		JLabel itname = new JLabel("Item Name:");
+		itname.setBounds(31, 99, 86, 15);
+		panel.add(itname);
+		
+		JLabel itqty = new JLabel("Item Quantity:");
+		itqty.setBounds(31, 130, 192, 15);
+		panel.add(itqty);
+		
+		JLabel itsup = new JLabel("Item Supplier:");
+		itsup.setBounds(31, 163, 79, 15);
+		panel.add(itsup);
+		
+		JLabel itman = new JLabel("Item Manufacturer:");
+		itman.setBounds(31, 239, 222, 15);
+		panel.add(itman);
+		
+		JLabel itcat = new JLabel("Item Category:");
+		itcat.setBounds(31, 37, 105, 15);
+		panel.add(itcat);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+			}
+		});
+
+		scrollPane.setBounds(298, 11, 571, 330);
+		contentPane.add(scrollPane);
+
+		table = new JTable();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+				
+				itemcat.setText(dtm.getValueAt(selectedIndex, 5).toString());
+				itemno.setText(dtm.getValueAt(selectedIndex, 0).toString());
+				itemname.setText(dtm.getValueAt(selectedIndex, 1).toString());
+				itemquantity.setText(dtm.getValueAt(selectedIndex, 2).toString());
+				itemsupplier.setText(dtm.getValueAt(selectedIndex, 3).toString());
+				itemmanufac.setText(dtm.getValueAt(selectedIndex, 4).toString());
+			}
+
+		});
+
+		table.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] {  "Item No.", "Item Name", "Quantity",  "Supplier Name", "Manufacturer", "Category" }) {
+
+			Class[] columnTypes = new Class[] {Integer.class, String.class, Integer.class, String.class, String.class, String.class};
+
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+		});
+
+		scrollPane.setViewportView(table);
+		
+		//Display Button
+		btnNewButton = new JButton("Display Inventory");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tableUpdate();
+			}
+		});
+		btnNewButton.setBounds(674, 352, 195, 23);
+		contentPane.add(btnNewButton);
+	
+		
+		//Add Button
+		btnNewButton_1 = new JButton("Add");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+						Connection conn;
+						PreparedStatement pst;
+						String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+						String DB_URL = "jdbc:mysql://localhost/veterinaryms";
+
+						// Database credentials
+						String USER = "root";
+						String PASS = "";
+
+						String itemmno = itemno.getText();
+						String itemna = itemname.getText();
+						String itemquan = itemquantity.getText();
+						String itemsup = itemsupplier.getText();
+						String itemman = itemmanufac.getText();
+						String itemcatt = itemcat.getText();
+						tableUpdate();
+
+						try {
+							Class.forName("com.mysql.cj.jdbc.Driver");
+							conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+
+							pst = conn.prepareStatement("insert into inventory_mgmt (Item_No, Item_Name, Item_Qty, Item_Supplier, Item_Manufacturer, Item_Category) values(?,?,?,?,?,?)");
+							pst.setString(1, itemmno);
+							pst.setString(2, itemna);
+							pst.setString(3, itemquan);
+							pst.setString(4, itemsup);
+							pst.setString(5, itemman);
+							pst.setString(6, itemcatt);
+							
+							pst.executeUpdate();
+
+							JOptionPane.showMessageDialog(null, "Record successfully added!");
+							tableUpdate();
+
+							// clear all fields
+							itemno.setText("");
+							itemname.setText("");
+							itemquantity.setText("");
+							itemsupplier.setText("");
+							itemmanufac.setText("");
+							itemcat.setText("");
+
+							// focus on the first field
+							itemno.requestFocus();
+
+						}
+
+						catch (Exception ev) {
+							{
+								System.out.println(ev);
+							}
+							;
+						}
+					}
+		});
+		btnNewButton_1.setBounds(10, 352, 85, 23);
+		contentPane.add(btnNewButton_1);
+		
+		
+		
+		//Edit Button
+		JButton btnNewButton_2 = new JButton("Edit");
+		btnNewButton_2.setBounds(106, 351, 85, 23);
+		contentPane.add(btnNewButton_2);
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+				try {
+					Connection conn;
+					PreparedStatement pst;
+					int id = Integer.parseInt(dtm.getValueAt(selectedIndex, 0).toString());
+					String itemna = itemname.getText();
+					String itemquan = itemquantity.getText();
+					String itemsup = itemsupplier.getText();
+					String itemman = itemmanufac.getText();
+					String itemcatt = itemcat.getText();
+					
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+					pst = conn.prepareStatement("update inventory_mgmt set Item_Name=?, "
+													+ "Item_Qty=?, Item_Supplier=?, Item_Manufacturer=?, "
+													+ "Item_Category=? where Item_No=?");
+					
+					pst.setString(1, itemna);
+					pst.setString(2, itemquan);
+					pst.setString(3, itemsup);
+					pst.setString(4, itemman);
+					pst.setString(5, itemcatt);
+					pst.setInt(6, id);
+					pst.executeUpdate();
+
+					JOptionPane.showMessageDialog(null, "Record successfully updated!");
+					tableUpdate();
+
+					// clear all fields
+					itemno.setText("");
+					itemname.setText("");
+					itemquantity.setText("");
+					itemsupplier.setText("");
+					itemmanufac.setText("");
+					itemcat.setText("");
+
+					// focus on the first field
+					itemno.requestFocus();
+
+				}
+
+				catch (Exception ev) {
+					{
+						System.out.println(ev);
+					}
+					;
+				}
+			}
+		});
+		
+		delete = new JButton("Delete");
+		delete.setBounds(203, 352, 85, 23);
+		contentPane.add(delete);
+		
+		back = new JButton("Back");
+		back.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MainEra mr = new MainEra();
+				mr.setVisible(true);
+				dispose();
+			}
+		});
+		back.setBounds(298, 352, 89, 23);
+		contentPane.add(back);
+		
+		btnNewButton_4 = new JButton("Prices");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Price pr = new Price();
+				pr.setVisible(true);
+				dispose();
+			}
+		});
+		btnNewButton_4.setBounds(567, 352, 89, 23);
+		contentPane.add(btnNewButton_4);
+		delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+				try {
+					Connection conn;
+					PreparedStatement pst;
+					
+					int id = Integer.parseInt(dtm.getValueAt(selectedIndex, 0).toString());
+					int dialogResult = JOptionPane.showConfirmDialog(null,
+							"Are you sure you want to delete this record?", "Warning", JOptionPane.YES_NO_OPTION);
+					if (dialogResult == JOptionPane.YES_OPTION) {
+						Class.forName("com.mysql.cj.jdbc.Driver");
+						conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+						pst = conn.prepareStatement("delete from inventory_mgmt where Item_No=?");
+
+						pst.setInt(1, id);
+						pst.executeUpdate();
+						
+						JOptionPane.showMessageDialog(null, "Record successfully deleted!");
+						tableUpdate();
+
+						// clear all fields
+						itemno.setText("");
+						itemname.setText("");
+						itemquantity.setText("");
+						itemsupplier.setText("");
+						itemmanufac.setText("");
+						itemcat.setText("");
+						
+						// focus on the first field
+						itemno.requestFocus();
+					}
+				} catch (Exception ev) {
+					{
+						System.out.println(ev);
+					}
+					;
+				}
+
+			}
+		});
+		//Background
+		Image bg = new ImageIcon(this.getClass().getResource("/bgtunay.png")).getImage();
+		JLabel default_bg = new JLabel("");
+		default_bg.setBounds(0, 0, 908, 399);
+		contentPane.add(default_bg);
+		default_bg.setIcon(new ImageIcon(bg));
+	}
+public TableModel getTableModel() {
+	return table.getModel();
+}
+
+public void setTableModel(TableModel model) {
+	table.setModel(model);
+}
+}

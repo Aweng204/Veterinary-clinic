@@ -1,0 +1,273 @@
+package veterinary;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Vector;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+public class Price extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+	private JButton btnNewButton;
+	
+	Connection conn;
+	PreparedStatement pst;
+	private JButton btnNewButton_1;
+	private JButton back;
+	private JTextField itemcat;
+	private JTextField itemno;
+	private JTextField price;
+	private JTextField itemname;
+	
+	private void tableUpdate() {
+		int c;
+		try {
+			// Class.forName("com.mysql.cj.jdbc.Driver");
+			// System.out.println("Connecting to a selected database...");
+
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+			pst = conn.prepareStatement("select * from inventory_price order by Item_Category, Item_No");
+			ResultSet rs = pst.executeQuery();
+			ResultSetMetaData rss = rs.getMetaData();
+			c = rss.getColumnCount();
+
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			dtm.setRowCount(0);
+
+			while (rs.next()) {
+				Vector v2 = new Vector();
+
+				for (int a = 1; a <= c; a++) {
+					v2.add(rs.getString("Item_Category"));
+					v2.add(rs.getString("Item_No"));
+					v2.add(rs.getString("Item_Name"));
+					v2.add(rs.getString("Price"));
+					
+				}
+
+				dtm.addRow(v2);
+			}
+		}
+
+		catch (Exception ev) {
+			{
+				System.out.println(ev);
+			}
+			;
+		}
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Price frame = new Price();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Price() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 794, 389);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(245, 11, 513, 300);
+		contentPane.add(scrollPane);
+		
+		//Display Button
+		btnNewButton = new JButton("Display");
+		btnNewButton.setBounds(669, 322, 89, 23);
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+						tableUpdate();	
+						}
+				});
+				contentPane.add(btnNewButton);
+		contentPane.add(btnNewButton);
+	
+		
+		table = new JTable();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+				
+				itemcat.setText(dtm.getValueAt(selectedIndex, 0).toString());
+				itemno.setText(dtm.getValueAt(selectedIndex, 1).toString());
+				itemname.setText(dtm.getValueAt(selectedIndex, 2).toString());
+				price.setText(dtm.getValueAt(selectedIndex, 3).toString());
+			}
+
+		});
+
+		table.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] {  "Item Category", "Item_No", "Item Name", "Price" }) {
+
+			Class[] columnTypes = new Class[] {Integer.class, Integer.class, Integer.class, String.class,};
+
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+		});
+		scrollPane.setViewportView(table);
+		
+		
+		back = new JButton("Back");
+		back.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Inventory inven = new Inventory();
+				inven.setVisible(true);
+				dispose();
+			}
+		});
+		back.setBounds(245, 322, 89, 23);
+		contentPane.add(back);
+		
+		JLabel lblItemPrice = new JLabel("Item Price");
+		lblItemPrice.setBounds(22, 237, 182, 14);
+		contentPane.add(lblItemPrice);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(10, 11, 215, 300);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		price = new JTextField();
+		price.setBounds(10, 247, 182, 32);
+		panel.add(price);
+		price.setColumns(10);
+		
+		itemcat = new JTextField();
+		itemcat.setBounds(10, 184, 182, 32);
+		panel.add(itemcat);
+		itemcat.setColumns(10);
+		
+		JLabel lblItemCategory = new JLabel("Item Category");
+		lblItemCategory.setBounds(10, 159, 182, 14);
+		panel.add(lblItemCategory);
+		
+		itemname = new JTextField();
+		itemname.setBounds(10, 116, 182, 32);
+		panel.add(itemname);
+		itemname.setColumns(10);
+		
+		JLabel lblItemName = new JLabel("Item Name");
+		lblItemName.setBounds(10, 91, 182, 14);
+		panel.add(lblItemName);
+		
+		itemno = new JTextField();
+		itemno.setBounds(10, 48, 182, 32);
+		panel.add(itemno);
+		itemno.setColumns(10);
+		
+		JLabel lblNewLabel = new JLabel("Item Number");
+		lblNewLabel.setBounds(10, 23, 182, 14);
+		panel.add(lblNewLabel);
+		
+		//Edit Button
+		JButton btnNewButton_2 = new JButton("Update");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+				try {
+					Connection conn;
+					PreparedStatement pst;
+					int id = Integer.parseInt(dtm.getValueAt(selectedIndex, 1).toString());
+					String itemna = itemname.getText();
+					String itemcatt = itemcat.getText();
+					String prices = price.getText();
+					
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+					pst = conn.prepareStatement("update inventory_price set Item_Category=?, Item_Name=?, price=? where Item_No=?");
+					
+					pst.setString(1, itemcatt);
+					pst.setString(2, itemna);
+					pst.setString(3, prices);
+					pst.setInt(4, id);
+					
+					pst.executeUpdate();
+
+					JOptionPane.showMessageDialog(null, "Record successfully updated!");
+					tableUpdate();
+
+					// clear all fields
+					itemno.setText("");
+					itemname.setText("");
+					price.setText("");
+					itemcat.setText("");
+
+					// focus on the first field
+					itemno.requestFocus();
+
+				}
+
+				catch (Exception ev) {
+					{
+						System.out.println(ev);
+					}
+					;
+				}
+			}
+		});
+		btnNewButton_2.setBounds(10, 322, 89, 23);
+		contentPane.add(btnNewButton_2);
+	
+		//Background
+		Image bg = new ImageIcon(this.getClass().getResource("/bgtunay.png")).getImage();
+		JLabel default_bg = new JLabel("");
+		default_bg.setBounds(0, -55, 790, 587);
+		contentPane.add(default_bg);
+		default_bg.setIcon(new ImageIcon(bg));
+	}
+
+public TableModel getTableModel() {
+	return table.getModel();
+}
+
+public void setTableModel(TableModel model) {
+	table.setModel(model);
+}
+}
+

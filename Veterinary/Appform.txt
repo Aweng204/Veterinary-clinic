@@ -1,0 +1,387 @@
+package veterinary;
+
+import veterinary.MainEra;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Image;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.JTable;
+import java.awt.Scrollbar;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Vector;
+import javax.swing.JComboBox;
+import javax.swing.ComboBoxEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+
+import com.toedter.calendar.JDateChooser;
+
+public class Appform extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField appid;
+	private JTextField clientid;
+	private JTextField serviceid;
+	private JTextField times;
+	private JTable table;
+	
+	Connection conn;
+	PreparedStatement pst;
+	private void tableUpdate() {
+		int c;
+		try {
+			// Class.forName("com.mysql.cj.jdbc.Driver");
+			// System.out.println("Connecting to a selected database...");
+
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+			pst = conn.prepareStatement("select * from appi");
+			ResultSet rs = pst.executeQuery();
+			ResultSetMetaData rss = rs.getMetaData();
+			c = rss.getColumnCount();
+
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			dtm.setRowCount(0);
+
+			while (rs.next()) {
+				Vector v2 = new Vector();
+
+				for (int a = 1; a <= c; a++) {
+					v2.add(rs.getString("App_ID"));
+					v2.add(rs.getString("Client_ID"));
+					v2.add(rs.getString("App_Date"));
+					v2.add(rs.getString("Service_ID"));
+					v2.add(rs.getString("Time"));
+					v2.add(rs.getString("Status"));
+				}
+
+				dtm.addRow(v2);
+			}
+		}
+
+		catch (Exception ev) {
+			{
+				System.out.println(ev);
+			}
+			;
+		}
+	}
+	
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Appform frame = new Appform();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Appform() {
+		setTitle("Appointment Receptionist");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 605, 478);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setForeground(new Color(0, 0, 0));
+		panel.setBorder(new TitledBorder(
+		new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)),
+		"Appointment Form", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel.setBounds(10, 10, 571, 153);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		appid = new JTextField();
+		appid.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		appid.setBounds(10, 24, 157, 31);
+		panel.add(appid);
+		appid.setColumns(10);
+		
+		clientid = new JTextField();
+		clientid.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		clientid.setBounds(196, 24, 157, 31);
+		panel.add(clientid);
+		clientid.setColumns(10);
+		
+		serviceid = new JTextField();
+		serviceid.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		serviceid.setBounds(10, 86, 157, 31);
+		panel.add(serviceid);
+		serviceid.setColumns(10);
+		
+		times = new JTextField();
+		times.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		times.setBounds(196, 86, 157, 31);
+		panel.add(times);
+		times.setColumns(10);
+		
+		JLabel appidlbl = new JLabel("Appointment ID");
+		appidlbl.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		appidlbl.setBounds(10, 65, 140, 13);
+		panel.add(appidlbl);
+		
+		JLabel clientlbl = new JLabel("Client ID");
+		clientlbl.setBounds(196, 63, 125, 13);
+		panel.add(clientlbl);
+		
+		JLabel appdatelbl = new JLabel("Appointment Date");
+		appdatelbl.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		appdatelbl.setBounds(382, 63, 157, 13);
+		panel.add(appdatelbl);
+		
+		JLabel servicelbl = new JLabel("Service ID");
+		servicelbl.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		servicelbl.setBounds(10, 131, 125, 13);
+		panel.add(servicelbl);
+		
+		JLabel timelbl = new JLabel("Time");
+		timelbl.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		timelbl.setBounds(196, 131, 125, 13);
+		panel.add(timelbl);
+		
+		JLabel statuslbl = new JLabel("Status");
+		statuslbl.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		statuslbl.setBounds(382, 131, 125, 13);
+		panel.add(statuslbl);
+		
+		JComboBox status = new JComboBox();
+		status.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		status.setModel(new DefaultComboBoxModel(new String[] {"     ", "Pending", "Approved", "Cancelled"}));
+		status.setBounds(382, 91, 157, 26);
+		panel.add(status);
+		
+		JDateChooser appdate = new JDateChooser();
+		appdate.setDateFormatString("yyyy-MM-dd");
+		appdate.setBounds(382, 24, 157, 31);
+		panel.add(appdate);
+		
+		JButton Update = new JButton("Update");
+		Update.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		Update.setBounds(125, 409, 114, 21);
+		contentPane.add(Update);
+		Update.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+				try {
+					Connection conn;
+					PreparedStatement pst;
+					int id = Integer.parseInt(dtm.getValueAt(selectedIndex, 0).toString());
+					String time = times.getText();
+					String stats = status.getSelectedItem().toString();
+					Class.forName("com.mysql.cj.jdbc.Driver");
+
+					conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+					pst = conn.prepareStatement("update appi set Time=?, status=? where App_ID=?");
+
+					pst.setString(1, time);
+					pst.setString(2, stats);
+					pst.setInt(3, id);
+					pst.executeUpdate();
+
+					JOptionPane.showMessageDialog(null, "Record successfully updated!");
+					tableUpdate();
+
+					// clear all fields
+					appid.setText("");
+					clientid.setText("");
+					appdate.setDate(null);
+					serviceid.setText("");
+					times.setText("");
+					status.getEditor().setItem(null);
+					
+					// focus on the first field
+					appid.requestFocus();
+
+				}
+
+				catch (Exception ev) {
+					{
+						System.out.println(e);
+					}
+					;
+				}
+			}
+		});
+		
+		//This is the Table
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+			}
+		});
+
+		scrollPane.setBounds(10, 173, 571, 224);
+		contentPane.add(scrollPane);
+
+		table = new JTable();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+				appid.setText(dtm.getValueAt(selectedIndex, 0).toString());
+				clientid.setText(dtm.getValueAt(selectedIndex, 1).toString());
+				appdate.setDateFormatString(dtm.getValueAt(selectedIndex, 2).toString());
+				serviceid.setText(dtm.getValueAt(selectedIndex, 3).toString());
+				times.setText(dtm.getValueAt(selectedIndex, 4).toString());
+				status.setSelectedItem(dtm.getValueAt(selectedIndex, 5).toString());
+			}
+
+		});
+
+		table.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] { "Appointment ID", "Client ID", "Appointment Date", "Service ID", "Time", "Status" }) {
+
+			Class[] columnTypes = new Class[] { Integer.class, Integer.class, String.class, String.class, Integer.class, String.class };
+
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+		});
+
+		scrollPane.setViewportView(table);
+
+		JButton Displaybtn = new JButton("DISPLAY RECORDS");
+		Displaybtn.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		Displaybtn.setBounds(367, 408, 214, 23);
+		contentPane.add(Displaybtn);
+		
+		JButton btnNewButton = new JButton("Back");
+		btnNewButton.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		btnNewButton.setBounds(261, 409, 85, 21);
+		btnNewButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				MainEra ap = new MainEra();
+				ap.setVisible(true);
+				dispose();
+			}
+			
+	});
+		
+		contentPane.add(btnNewButton);
+		
+		//Add Button
+		JButton btnNewButton_1 = new JButton("Add");
+		btnNewButton_1.setFont(new Font("Montserrat Medium", Font.PLAIN, 15));
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				try {
+					Connection conn;
+					PreparedStatement pst;
+					
+					String appidd = appid.getText();
+					String client = clientid.getText();
+					String appday = ((JTextField)appdate.getDateEditor().getUiComponent()).getText();
+					String serid = serviceid.getText();
+					String time = times.getText();
+					String stats = status.getSelectedItem().toString();
+					
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+					pst = conn.prepareStatement(" insert into appi (App_ID, Client_ID, App_Date, Service_ID"
+							+ ",Time, Status) values(?,?,?,?,?,?)");
+					pst.setString(1, appidd);
+					pst.setString(2, client);
+					pst.setString(3, appday);
+					pst.setString(4, serid);
+					pst.setString(5, time);
+					pst.setString(6, stats);
+		
+					pst.executeUpdate();
+
+					JOptionPane.showMessageDialog(null, "Record successfully added!");
+					tableUpdate();
+
+					// clear all fields
+					appid.setText("");
+					clientid.setText("");
+					appdate.setDate(null);
+					serviceid.setText("");
+					times.setText("");
+					status.getEditor().setItem(null);
+					
+					// focus on the first field
+					appid.requestFocus();
+
+				}
+
+				catch (Exception ev2) {
+					{
+						System.out.println(ev2);
+					}
+					;
+				}
+			}
+		});
+		btnNewButton_1.setBounds(10, 410, 105, 23);
+		contentPane.add(btnNewButton_1);
+		
+		
+		
+		Displaybtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				tableUpdate();
+			}
+		});
+		
+		//Background
+		Image bg = new ImageIcon(this.getClass().getResource("/bgtunay.png")).getImage();
+		JLabel default_bg = new JLabel("");
+		default_bg.setBounds(0, 0, 591, 441);
+		contentPane.add(default_bg);
+		default_bg.setIcon(new ImageIcon(bg));
+
+
+	}
+
+	public TableModel getTableModel() {
+		return table.getModel();
+	}
+
+	public void setTableModel(TableModel model) {
+		table.setModel(model);
+	}
+}

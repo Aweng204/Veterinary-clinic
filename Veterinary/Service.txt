@@ -1,0 +1,176 @@
+package veterinary;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Vector;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+public class Service extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+
+	Connection conn;
+	PreparedStatement pst;
+	private void tableUpdate() {
+		int c;
+		try {
+			// Class.forName("com.mysql.cj.jdbc.Driver");
+			// System.out.println("Connecting to a selected database...");
+
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/veterinaryms", "root", "");
+			pst = conn.prepareStatement("select * from services");
+			ResultSet rs = pst.executeQuery();
+			ResultSetMetaData rss = rs.getMetaData();
+			c = rss.getColumnCount();
+
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			dtm.setRowCount(0);
+
+			while (rs.next()) {
+				Vector v2 = new Vector();
+
+				for (int a = 1; a <= c; a++) {
+					v2.add(rs.getString("Service_ID"));
+					v2.add(rs.getString("Service_Name"));
+					v2.add(rs.getString("Service_Description"));
+					v2.add(rs.getString("Service_Fee"));
+				}
+
+				dtm.addRow(v2);
+			}
+		}
+
+		catch (Exception ev) {
+			{
+				System.out.println(ev);
+			}
+			;
+		}
+	}
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Service frame = new Service();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Service() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 612, 326);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+
+		//This is the Table
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setToolTipText("");
+		scrollPane1.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+			}
+		});
+
+		scrollPane1.setBounds(10, 10, 571, 224);
+		contentPane.add(scrollPane1);
+
+		table = new JTable();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				int selectedIndex = table.getSelectedRow();
+
+			}
+
+		});
+
+		table.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] { "Service No", "Service Name", "Service Description", "Service Fee" }) {
+
+			Class[] columnTypes = new Class[] { Integer.class, String.class, String.class, Integer.class };
+
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			
+			}
+		});
+
+		scrollPane1.setViewportView(table);
+
+		JButton Displaybtn = new JButton("DISPLAY RECORDS");
+		Displaybtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		Displaybtn.setBounds(367, 244, 214, 23);
+		contentPane.add(Displaybtn);
+		
+		JButton btnNewButton = new JButton("Back");
+		btnNewButton.setBounds(10, 247, 85, 21);
+		btnNewButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				MainEra ap = new MainEra();
+				ap.setVisible(true);
+				dispose();
+			}
+			
+	});
+		
+		contentPane.add(btnNewButton);
+		Displaybtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				tableUpdate();
+			}
+		});
+		
+		//Background
+		Image bg = new ImageIcon(this.getClass().getResource("/bgtunay.png")).getImage();
+		JLabel default_bg = new JLabel("");
+		default_bg.setBounds(0, -42, 609, 391);
+		contentPane.add(default_bg);
+		default_bg.setIcon(new ImageIcon(bg));
+	}
+
+	public TableModel getTableModel() {
+		return table.getModel();
+	}
+
+	public void setTableModel(TableModel model) {
+		table.setModel(model);
+	}
+}
